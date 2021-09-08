@@ -8,18 +8,11 @@ from flask import render_template, Flask, make_response
 
 app = Flask(__name__)
 
-# Load the config file
-config_file = os.getenv("HE2PROM_CFG_FILE") or "/app/config/hubitat2prom.yml"
-with open(config_file, "r") as configfile:
-    config = yaml.load(
-            configfile,
-            Loader=yaml.SafeLoader)
-
-base_uri = config["hubitat"]["base_uri"]
-access_token = config["hubitat"]["access_token"]
-
+base_uri = os.environ['HE_URI']
+access_token = os.environ['HE_ACCESS_TOKEN']
 # This is the default set of metrics to be collected
-collected_metrics = config['collected_metrics']
+collected_metrics = os.environ['HE_ATTRIBUTES']
+prom_prefix = os.environ['HE_PROM_PREFIX']
 
 @app.route("/metrics")
 def metrics():
@@ -35,27 +28,22 @@ def metrics():
                 # Does it have a "proper" value?
                 if attrib["currentValue"] is not None:
                     # If it's a switch, then change from text to binary values
-                    if attrib["name"] == "switch":
-                        if attrib["currentValue"] == "on":
+                    if attrib["name"] in ["switch", "power", "water"] :
+                        if attrib["currentValue"] in ["on", "wet"]:
                             attrib["currentValue"] = 1
-                        else:
-                            attrib["currentValue"] = 0
-                    if attrib["name"] == "power":
-                        if attrib["currentValue"] == "on":
-                            attrib["currentValue"] = 1
-                        elif attrib["currentValue"] == "off":
+                        elif attrib["currentValue"] in ["off", "dry"]:
                             attrib["currentValue"] = 0
                         else:
                             attrib["currentValue"] = attrib["currentValue"]
 
                     # Sanitise the device name as it will appear in the label
-                    device_name = device_details['label'].lower().replace(' ','_').replace('-','_')
+                    device_name = device_details['label'].lower().replace(' ','_').replace('-','_').replace('__','_')
                     # Sanitise the metric name 
-                    metric_name = attrib['name'].lower().replace(' ','_').replace('-','_')
+                    metric_name = attrib['name'].lower().replace(' ','_').replace('-','_').replace('__','_')
                     # Create the dict that holds the data
                     device_attributes.append({
                         "device_name": f"{device_name}",
-                        "metric_name": f"{metric_name}",
+                        "metric_name": f"{prom_prefix}{metric_name}",
                         "metric_value": f"{attrib['currentValue']}",
                         "metric_timestamp": time.time()})
     # Create the response

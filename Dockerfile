@@ -2,9 +2,13 @@ FROM alpine:latest
 
 ARG HE_URI="myhubitatdevice"
 ARG HE_ACCESS_TOKEN="my-access-token"
+ARG HE_ATTRIBUTES="battery,humidity,illuminence,level,switch,temperature"
+ARG HE_PROM_PREFIX="hubitat_"
 
 ENV HE_URI=$HE_URI
 ENV HE_ACCESS_TOKEN=$HE_ACCESS_TOKEN
+ENV HE_ATTRIBUTES=$HE_ATTRIBUTES
+ENV HE_PROM_PREFIX=$HE_PROM_PREFIX
 
 RUN apk add --no-cache python3 py3-pip
 

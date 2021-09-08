@@ -3,36 +3,32 @@
 This application runs in a docker container, talks to the 
 [Hubitat Maker API](https://docs.hubitat.com/index.php?title=Maker_API)
 and returns the metrics in a format suitable for consumption by
- [Prometheus](https://prometheus.io)
+[Prometheus](https://prometheus.io)
 
 # Getting up and running
 
 ## Docker
 
-This is the recommended way to launch the service as it takes care of the dependencies for you.
+Run the following command to start the container:
 
-First, update the `config/hubitat2prom.yml` file with the URL and access token for your MakerAPI.  This can be found
-in the MakerAPI settings on your Hubitat device.
-
-Next, run the following command to start the container:
-
-`docker run --privileged -v "$(pwd)"/config:/app/config -p 5000:5000 ghcr.io/budgetsmarthome/hubitat2prom:sha-dba43ca`
+`docker run --name hubitat2prom -p 5000:5000 HE_URI=http://127.0.0.1/apps/api/123/devices -e HE_ACCESS_TOKEN=123456 -e HE_ATTRIBUTES=battery,humidity,illuminence,level,switch,temperature,water TheChrisTech/hubitat2prom:latest`
 
 This will start the container listening on your local machine on port 5000, and you can visit 
 [http://localhost:5000/metrics](http://localhost:5000/metrics) to confirm that the metrics are coming through.
 
 Once you've confirmed this, you can move on to configuring Prometheus.
 
-## Local Installation
+### ENVIRONMENT Variables:
 
-If you want to run this service without installing from Docker, then the steps are as follows:
+`HE_URI` can be found on the Maker API app page, at the bottom. IP and Device ID will be different than what is shown above.
 
-   1. Configure `config/hubitat2prom.yml` as documented in the `Docker` section of this readme.
-   2. Install the requirements from `requirements.txt` into an appropriate virtual environment
-   3. Run the following command: `export FLASK_APP=app;export HEPROM_CFG_FILE="path/to/config/file" && flask run`
+`HE_ACCESS_TOKEN` can also be found on the Maker API app page, in the example URLs at the bottom. 
 
-As with the docker container, your service will now be exposed on port 5000, and you can test it is working
-by visiting [http://localhost:5000/metrics](http://localhost:5000/metrics) in a browser.
+`HE_ATTRIBUTES` are any attributes you wish to collect. Determine what attributes you want by visiting the Maker API app page, and clicking `Get All Devices with Full Details` link.
+_default:_ battery,humidity,illuminence,level,switch,temperature
+
+`HE_PROM_PREFIX` is the prefix for the metrics when presented to Prometheus. This helps correlate metrics together if you use Prometheus for multiple applications. 
+_default:_ hubitat_
 
 ## Prometheus
 
@@ -44,26 +40,31 @@ Add the following to the bottom of your Prometheus Outputs:
   - job_name: 'hubitat'
     scrape_interval: 30s
     static_configs:
-    - targets: ['my.ip.address.or.hostname']
+    - targets: ['IP-OF-Docker-Container:5000']
 ```
 
 Prometheus will now scrape your web service every 30 seconds to update the metrics in the data store.
 
 # Collected Metrics
 
-Hubitat2Prom is capable of collecting any of the metrics that Hubitat exposes via the MakerAPI.
+Hubitat2Prom is capable of collecting any of the metrics that Hubitat exposes via the Maker API.
 
-By default it will collect the list below, however adding a new metric is as simple as checking the output of the MakerAPI and adding the attribute name to your configuration, and then restarting the service.
+By default it will collect the list below, however adding a new metric is as simple as checking the output of the Maker API and adding the attribute name to your configuration and then restarting the service.
 
-The default collections are:
+Some of the collections are:
 
 ```
   - battery
   - humidity
   - illuminance
   - level # This is used for both Volume AND Lighting Dimmers!
-  - switch # We convert from "on/off" to "1/0" so it can be graphed
   - temperature
+```
+Some collections need to have their text converted to values, so they can be graphed.
+```
+  - switch # "on/off" is "1/0"
+  - water # "wet/dry" is "1/0"
+  - power # "on/off" is "1/0"
 ```
 
 # Grafana
