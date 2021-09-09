@@ -9,6 +9,7 @@ ENV HE_URI=$HE_URI
 ENV HE_ACCESS_TOKEN=$HE_ACCESS_TOKEN
 ENV HE_ATTRIBUTES=$HE_ATTRIBUTES
 ENV HE_PROM_PREFIX=$HE_PROM_PREFIX
+ENV HE_PORT=$HE_PORT
 
 RUN apk add --no-cache python3 py3-pip
 
@@ -22,6 +23,6 @@ WORKDIR /app
 
 RUN /usr/bin/python3 -m pip install -r requirements.txt
 
-EXPOSE 5000
+EXPOSE $HE_PORT
 
-CMD gunicorn -w 4 -b 0.0.0.0:5000 app:app
+CMD gunicorn -w 4 -b 0.0.0.0:$HE_PORT app:app
