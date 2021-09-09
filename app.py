@@ -12,7 +12,6 @@ app = Flask(__name__)
 
 base_uri = os.environ['HE_URI']
 access_token = os.environ['HE_ACCESS_TOKEN']
-# This is the default set of metrics to be collected
 collected_metrics = os.environ['HE_ATTRIBUTES']
 prom_prefix = os.environ['HE_PROM_PREFIX']
 
