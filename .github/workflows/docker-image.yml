@@ -25,6 +25,6 @@ jobs:
         file: ./Dockerfile
         builder: ${{ steps.buildx.outputs.name }}
         push: true
-        tags:  
-          - ${{ secrets.DOCKER_USER }}/hubitat2prom:${{steps.vars.outputs.tag}}
-          - ${{ secrets.DOCKER_USER }}/hubitat2prom:latest
+        tags: |
+          ${{ secrets.DOCKER_USER }}/hubitat2prom:${{steps.vars.outputs.tag}}
+          ${{ secrets.DOCKER_USER }}/hubitat2prom:latest
