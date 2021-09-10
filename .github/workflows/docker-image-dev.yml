@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ test-req-update ]
+    branches: [ dev ]
 
 # on:
 #   release:
