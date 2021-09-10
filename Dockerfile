@@ -12,8 +12,6 @@ ENV HE_PROM_PREFIX=$HE_PROM_PREFIX
 
 RUN apk add --no-cache python3 py3-pip
 
-RUN mkdir -p /app/config
-
 COPY requirements.txt /app/requirements.txt
 COPY app.py /app/app.py
 COPY templates /app/templates
