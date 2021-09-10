@@ -36,7 +36,7 @@ jobs:
         file: ./Dockerfile
         builder: ${{ steps.buildx.outputs.name }}
         push: true
-        tags: ${{ secrets.DOCKER_USER }}/hubitat2prom:${{ steps.current-time.outputs.formattedTime  }}
+        tags: ${{ secrets.DOCKER_USER }}/hubitat2prom:dev-${{ steps.current-time.outputs.formattedTime  }}
         # tags: |
         #   ${{ secrets.DOCKER_USER }}/hubitat2prom:${{ env.TAG }}
         #   ${{ secrets.DOCKER_USER }}/hubitat2prom:latest
