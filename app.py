@@ -22,9 +22,9 @@ timestamp_to_use = time.time()
 @app.route("/metrics")
 
 def metrics():
-    devices = requests.get(f"{base_uri}?access_token={access_token}")
+    devices = requests.get(f"{base_uri}?access_token={access_token}", headers={'Cache-Control': 'no-cache'})
     for device in devices.json():
-        device_details = requests.get(f"{base_uri}/{device['id']}?access_token={access_token}").json()
+        device_details = requests.get(f"{base_uri}/{device['id']}?access_token={access_token}", headers={'Cache-Control': 'no-cache'}).json()
         if device_details["type"] == "Google Nest Thermostat":
             nestThermostat(device_attributes, device_details)
         for attrib in device_details['attributes']:
